@@ -2,8 +2,14 @@ package wallet
 
 import (
 	"errors"
+	"fmt"
 	"github.com/bahrom656/wallet/pkg/types"
 	"github.com/google/uuid"
+	"io"
+	"log"
+	"os"
+	"strconv"
+	"strings"
 )
 
 var ErrPhoneRegistered = errors.New("phone already registered")
@@ -173,4 +179,94 @@ func (s *Service) PayFromFavorite(favoriteID string) (*types.Payment, error) {
 	}
 
 	return payment, nil
+}
+
+func (s *Service) ExportToFile(path string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	defer func() {
+		if cerr := file.Close(); cerr != nil {
+			log.Print(cerr)
+		}
+	}()
+
+	for _, acc := range s.accounts {
+		_, err = file.Write([]byte(types.Phone(strconv.FormatInt(
+			acc.ID, 10)) +
+			(";") +
+			acc.Phone +
+			(";") +
+			types.Phone(strconv.FormatInt(int64(acc.Balance), 10)) +
+			("|")))
+		if err != nil {
+			log.Print(err)
+			return err
+		}
+	}
+	return nil
+}
+func (s *Service) ImportFromFile(path string) error {
+	file, err := os.Open(path)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	defer func() {
+		if serr := file.Close(); serr != nil {
+			log.Print(serr)
+		}
+	}()
+
+	buf := make([]byte, 4096)
+	content := make([]byte, 0)
+
+	for {
+		read, err := file.Read(buf)
+		if err == io.EOF {
+			content = append(content, buf[:read]...)
+			break
+		}
+		if err != nil {
+			log.Print(err)
+			return err
+		}
+		content = append(content, buf[:read]...)
+	}
+	date := string(content)
+
+	acc := strings.Split(date, "|")
+	acc = acc[:len(acc)-1]
+
+	for _, accValue := range acc {
+		str := strings.Split(accValue, ";")
+
+		id, err := strconv.Atoi(str[0])
+		if err != nil {
+			log.Print(err)
+			return err
+		}
+		phone := str[1]
+
+		balance, err := strconv.Atoi(str[2])
+		if err != nil {
+			log.Print(err)
+			return err
+		}
+
+		newAccount := &types.Account{
+			ID:      int64(id),
+			Phone:   types.Phone(phone),
+			Balance: types.Money(balance),
+		}
+		s.accounts = append(s.accounts, newAccount)
+	}
+	for _, as := range s.accounts {
+		fmt.Print(as)
+	}
+	return nil
 }
