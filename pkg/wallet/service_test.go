@@ -170,3 +170,27 @@ func (s *Service) addAccount(data testAccount) (*types.Account, []*types.Payment
 }
 
 
+func TestService_Repeat(t *testing.T) {
+	//создаем Сервис
+	s := newTestService()
+	_, payments, err := s.addAccount(defaultTestAccount)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	//пробуем найти платёж
+	payment := payments[0]
+	_, err = s.FindPaymentByID(payment.ID)
+	if err != nil {
+		t.Errorf("FindPaymentByID(): error = %v", err)
+		return
+	}
+
+	_, err = s.Repeat(payment.ID)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
