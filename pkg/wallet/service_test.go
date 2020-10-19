@@ -194,3 +194,112 @@ func TestService_Repeat(t *testing.T) {
 	}
 }
 
+func TestService_FavoritePaymet_success(t *testing.T) {
+	//создаем Сервис
+	s := newTestService()
+	_, payments, err := s.addAccount(defaultTestAccount)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	//пробуем найти платёж
+	payment := payments[0]
+	_, err = s.FindPaymentByID(payment.ID)
+	if err != nil {
+		t.Errorf("FindPaymentByID(): error = %v", err)
+		return
+	}
+	//добавим в избранный
+	_, err = s.FavoritePayment(payment.ID, "Beeline")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func TestService_FavoritePaymet_fail(t *testing.T) {
+	//создаем Сервис
+	s := newTestService()
+	_, payments, err := s.addAccount(defaultTestAccount)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	//пробуем найти платёж
+	payment := payments[0]
+	_, err = s.FindPaymentByID(payment.ID)
+	if err != nil {
+		t.Errorf("FindPaymentByID(): error = %v", err)
+		return
+	}
+	//добавим в избранный
+	_, err = s.FavoritePayment(uuid.New().String(), "Beeline")
+	if err == nil {
+		t.Errorf("error")
+		return
+	}
+}
+
+func TestService_PayFromFavorite_success(t *testing.T) {
+	//создаем Сервис
+	s := newTestService()
+	_, payments, err := s.addAccount(defaultTestAccount)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	//пробуем найти платёж
+	payment := payments[0]
+	_, err = s.FindPaymentByID(payment.ID)
+	if err != nil {
+		t.Errorf("FindPaymentByID(): error = %v", err)
+		return
+	}
+	//добавим в избранный
+	favpay, err := s.FavoritePayment(payment.ID, "Beeline")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	_, err = s.PayFromFavorite(favpay.ID)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+
+
+func TestService_PayFromFavorite_fail(t *testing.T) {
+	//создаем Сервис
+	s := newTestService()
+	_, payments, err := s.addAccount(defaultTestAccount)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	//пробуем найти платёж
+	payment := payments[0]
+	_, err = s.FindPaymentByID(payment.ID)
+	if err != nil {
+		t.Errorf("FindPaymentByID(): error = %v", err)
+		return
+	}
+	//добавим в избранный
+	_, err = s.FavoritePayment(payment.ID, "Beeline")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	_, err = s.PayFromFavorite(uuid.New().String())
+	if err == nil {
+		t.Errorf("error")
+		return
+	}
+}
+
+
