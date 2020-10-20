@@ -332,3 +332,59 @@ func Benchmark_SumPayments(b *testing.B) {
 	}
 }
 
+func TestService_ExportToFile(t *testing.T) {
+	s.accounts = []*types.Account{
+		{ID: 1, Phone: "+992000000000"},
+		{ID: 2, Phone: "+992000000001"},
+		{ID: 3, Phone: "+992000000002"},
+		{ID: 4, Phone: "+992000000003"},
+		{ID: 5, Phone: "+992000000004"},
+	}
+	err := s.ExportToFile("export.txt")
+	if err != nil {
+		t.Error(err)
+	}
+}
+func TestService_ImportFromFile(t *testing.T) {
+	err := s.ImportFromFile("export.txt")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestService_Export(t *testing.T) {
+	acc, err := s.RegisterAccount("+992981898998")
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = s.RegisterAccount("+992981898991")
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = s.RegisterAccount("+992981898992")
+	if err != nil {
+		t.Error(err)
+	}
+	err = s.Deposit(acc.ID, 5000000)
+	if err != nil {
+		t.Error(err)
+	}
+	pay, err := s.Pay(acc.ID, 4050, "auto")
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = s.FavoritePayment(pay.ID, "apple")
+	if err != nil {
+		t.Error(err)
+	}
+	err = s.Export("data")
+	if err != nil {
+		t.Error(err)
+	}
+}
+func TestService_Import(t *testing.T) {
+	err := s.Import("data")
+	if err != nil {
+		t.Error(err)
+	}
+}
