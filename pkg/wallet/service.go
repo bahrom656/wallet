@@ -569,6 +569,77 @@ func (s *Service) Import(dir string) error {
 
 	return nil
 }
+func (s *Service) ExportAccountHistory(accountID int64) ([]types.Payment, error) {
+	var paymentFound []types.Payment
+
+	for _, payment := range s.payments {
+		if payment.AccountID == accountID {
+			paymentFound = append(paymentFound, *payment)
+		}
+	}
+	if paymentFound == nil {
+		return nil, ErrAccountNotFound
+	}
+	return paymentFound, nil
+}
+
+func (s *Service) HistoryToFiles(payments []types.Payment, dir string, records int) error {
+	if len(payments) != 0 {
+		if len(payments) <= records {
+			file, _ := os.OpenFile(dir+"/payments.dump", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+			defer func() {
+				if cerr := file.Close(); cerr != nil {
+					log.Print(cerr)
+				}
+			}()
+
+			var str string
+			for _, payment := range payments {
+				// str += fmt.Sprint(payment.ID) + ";" + fmt.Sprint(payment.AccountID) + ";" + fmt.Sprint(payment.Amount) + ";" + fmt.Sprint(payment.Category) + ";" + fmt.Sprint(payment.Status) + "\n"
+				idPayment := string(payment.ID) + ";"
+				idPaymnetAccountId := strconv.Itoa(int(payment.AccountID)) + ";"
+				amountPayment := strconv.Itoa(int(payment.Amount)) + ";"
+				categoryPayment := string(payment.Category) + ";"
+				statusPayment := string(payment.Status)
+
+				str += idPayment
+				str += idPaymnetAccountId
+				str += amountPayment
+				str += categoryPayment
+				str += statusPayment + "\n"
+			}
+			_, err := file.WriteString(str)
+			if err != nil {
+				log.Print(err)
+			}
+		} else {
+			var str string
+			k := 0
+			t := 1
+			var file *os.File
+			for _, payment := range payments {
+				if k == 0 {
+					file, _ = os.OpenFile(dir+"/payments"+fmt.Sprint(t)+".dump", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+				}
+				k++
+				str = string(payment.ID) + ";" + strconv.Itoa(int(payment.AccountID)) + ";" + strconv.Itoa(int(payment.Amount)) + ";" + string(payment.Category) + ";" + string(payment.Status) + "\n"
+				_, err := file.WriteString(str)
+				if err != nil {
+					log.Print(err)
+				}
+				if k == records {
+					str = ""
+					t++
+					k = 0
+					fmt.Println(t, " = t")
+					file.Close()
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func (s *Service) SumPayments(goroutines int) (sum types.Money) {
 
 	wg := sync.WaitGroup{}
