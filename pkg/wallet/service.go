@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var ErrPhoneRegistered = errors.New("phone already registered")
@@ -567,4 +568,34 @@ func (s *Service) Import(dir string) error {
 	}
 
 	return nil
+}
+func (s *Service) SumPayments(goroutines int) (sum types.Money) {
+
+	wg := sync.WaitGroup{}
+	mu := sync.Mutex{}
+
+	count := len(s.payments)/goroutines + 1
+	for i := 0; i < goroutines; i++ {
+		wg.Add(1)
+
+		go func(val int) {
+			defer wg.Done()
+
+			var v int
+
+			for j := val * count; j < (val+1)*count; j++ {
+				if j >= len(s.payments) {
+					j = (val + 1) * count
+					break
+				}
+				v = v + int(s.payments[j].Amount)
+			}
+			mu.Lock()
+			sum += types.Money(v)
+			mu.Unlock()
+		}(i)
+
+		wg.Wait()
+	}
+	return sum
 }

@@ -302,4 +302,33 @@ func TestService_PayFromFavorite_fail(t *testing.T) {
 	}
 }
 
+func TestService_SumPayments(t *testing.T) {
+	svc := &Service{}
+
+	for i := 0; i < 103; i++ {
+		svc.payments = append(svc.payments, &types.Payment{Amount: 1})
+	}
+
+	sum := svc.SumPayments(10)
+	if sum != 103 {
+		t.Error("incorrect")
+	}
+}
+
+func Benchmark_SumPayments(b *testing.B) {
+	svc := &Service{}
+
+	for i := 0; i < 103; i++ {
+		svc.payments = append(svc.payments, &types.Payment{Amount: 1})
+	}
+
+	result := 103
+
+	for i := 0; i < b.N; i++ {
+		sum := svc.SumPayments(result)
+		if result != int(sum) {
+			b.Fatalf("invalid result, got %v, want %v", sum, result)
+		}
+	}
+}
 
