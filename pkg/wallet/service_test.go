@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/bahrom656/wallet/pkg/types"
 	"github.com/google/uuid"
-	"log"
 	"reflect"
 	"testing"
 )
@@ -390,7 +389,7 @@ func TestService_Import(t *testing.T) {
 	}
 }
 func TestService_SumPaymentsWithProgress(t *testing.T) {
-	for i := 0; i < 20000000; i++ {
+	for i := 0; i < 100000; i++ {
 		payment := &types.Payment{
 			ID:     uuid.New().String(),
 			Amount: types.Money(103),
@@ -398,12 +397,6 @@ func TestService_SumPaymentsWithProgress(t *testing.T) {
 		s.payments = append(s.payments, payment)
 	}
 
-	progress := s.SumPaymentsWithProgress()
-	var e types.Money
-	var w int
-	for pay := range progress {
-		e = pay.Result
-		w = pay.Part
-	}
-	log.Print(e, w)
+	s.SumPaymentsWithProgress()
+	
 }
