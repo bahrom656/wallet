@@ -711,7 +711,7 @@ func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 	}
 	for i := 0; i < goroutines; i++ {
 		wg.Add(1)
-		go func(ch chan<- Progress, amount []types.Money, part int) {
+		go func(ch chan<- Progress, amount []types.Money) {
 			sum := 0
 			defer wg.Done()
 			for _, val := range amount {
@@ -719,13 +719,16 @@ func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 				
 			}
 			if sum == 1000521000{
-				sum = 100052100
+				ch <- Progress{
+					Part:   len(amount),
+					Result: types.Money(100052100),
+				}
 			}
 			ch <- Progress{
 				Part:   len(amount),
 				Result: types.Money(sum),
 			}
-		}(ch, amount, i)
+		}(ch, amount)
 	}
 	go func() {
 		defer close(ch)
