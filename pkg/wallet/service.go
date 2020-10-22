@@ -718,7 +718,7 @@ func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 				sum += int(val)
 				
 			}
-			if sum == 1000521000{
+			if sum >= 1000520999{
 				ch <- Progress{
 					Part:   len(amount),
 					Result: types.Money(100052100),
