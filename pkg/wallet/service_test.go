@@ -388,7 +388,7 @@ func TestService_Import(t *testing.T) {
 		t.Error(err)
 	}
 }
-func TestService_SumPaymentWithProgress(t *testing.T) {
+func TestService_SumPaymentsWithProgress(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		payment := &types.Payment{
 			ID: uuid.New().String(),
@@ -397,7 +397,7 @@ func TestService_SumPaymentWithProgress(t *testing.T) {
 		s.payments = append(s.payments, payment)
 	}
 
-	progress := s.SumPaymentWithProgress()
+	progress := s.SumPaymenstWithProgress()
 
 	for pro := range progress{
 		fmt.Println(pro.Result)
