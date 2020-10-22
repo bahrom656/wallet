@@ -596,7 +596,7 @@ func (s *Service) HistoryToFiles(payments []types.Payment, dir string, records i
 			var str string
 			for _, payment := range payments {
 				// str += fmt.Sprint(payment.ID) + ";" + fmt.Sprint(payment.AccountID) + ";" + fmt.Sprint(payment.Amount) + ";" + fmt.Sprint(payment.Category) + ";" + fmt.Sprint(payment.Status) + "\n"
-				idPayment := string(payment.ID) + ";"
+				idPayment := payment.ID + ";"
 				idPaymnetAccountId := strconv.Itoa(int(payment.AccountID)) + ";"
 				amountPayment := strconv.Itoa(int(payment.Amount)) + ";"
 				categoryPayment := string(payment.Category) + ";"
@@ -622,7 +622,7 @@ func (s *Service) HistoryToFiles(payments []types.Payment, dir string, records i
 					file, _ = os.OpenFile(dir+"/payments"+fmt.Sprint(t)+".dump", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 				}
 				k++
-				str = string(payment.ID) + ";" + strconv.Itoa(int(payment.AccountID)) + ";" + strconv.Itoa(int(payment.Amount)) + ";" + string(payment.Category) + ";" + string(payment.Status) + "\n"
+				str = payment.ID + ";" + strconv.Itoa(int(payment.AccountID)) + ";" + strconv.Itoa(int(payment.Amount)) + ";" + string(payment.Category) + ";" + string(payment.Status) + "\n"
 				_, err := file.WriteString(str)
 				if err != nil {
 					log.Print(err)
@@ -632,7 +632,7 @@ func (s *Service) HistoryToFiles(payments []types.Payment, dir string, records i
 					t++
 					k = 0
 					fmt.Println(t, " = t")
-					file.Close()
+					_ = file.Close()
 				}
 			}
 		}
@@ -669,4 +669,60 @@ func (s *Service) SumPayments(goroutines int) (sum types.Money) {
 		wg.Wait()
 	}
 	return sum
+}
+
+//func (s *Service)FilterPAyments(accountID int64, goroutines int) ([]types.Payment, error) {
+//	wg := sync.WaitGroup{}
+//	mu := sync.Mutex{}
+//
+//	count := len(s.payments)/goroutines + 1
+//	for i := 0; i < goroutines; i++ {
+//		wg.Add(1)
+//
+//		go func(val int){
+//			defer wg.Done()
+//
+//			var value string
+//
+//			for j := (val + count); j < (val + 1)*count; j++{
+//				if
+//			}
+//		}(i)
+//	}
+//}
+
+type Progress struct {
+	Part   int
+	Result types.Money
+}
+
+func (s *Service) SumPaymentWithProgress() <-chan Progress {
+	size := 100_000
+
+	amount := make([]types.Money, 0)
+	for _, pay := range s.payments {
+		amount = append(amount, pay.Amount)
+	}
+	wg := sync.WaitGroup{}
+	goroutines := len(amount) / size
+	ch := make(chan Progress)
+	for i := 0; i < goroutines; i++ {
+		wg.Add(1)
+		go func(ch chan<- Progress, amount []types.Money, part int) {
+			sum := 0
+			defer wg.Done()
+			for _, val := range amount {
+				sum += int(val)
+			}
+			ch <- Progress{
+				Part:   len(amount),
+				Result: types.Money(sum),
+			}
+		}(ch, amount, i)
+	}
+	go func() {
+		defer close(ch)
+		wg.Wait()
+	}()
+	return ch
 }
