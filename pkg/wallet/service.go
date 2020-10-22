@@ -706,7 +706,7 @@ func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 	wg := sync.WaitGroup{}
 	goroutines := len(amount) / size
 	ch := make(chan Progress)
-	for i := 0; i < goroutines; i++ {
+	for i := 0; i <= goroutines; i++ {
 		wg.Add(1)
 		go func(ch chan<- Progress, amount []types.Money, part int) {
 			sum := 0
