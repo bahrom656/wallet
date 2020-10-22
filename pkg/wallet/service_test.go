@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bahrom656/wallet/pkg/types"
 	"github.com/google/uuid"
+	"log"
 	"reflect"
 	"testing"
 )
@@ -13,26 +14,29 @@ type testService struct {
 }
 
 type testAccount struct {
-	phone		types.Phone
-	balance 	types.Money
-	payments	[]struct {
-		amount		types.Money
-		category	types.PaymentCategory
+	phone    types.Phone
+	balance  types.Money
+	payments []struct {
+		amount   types.Money
+		category types.PaymentCategory
 	}
 }
-var defaultTestAccount = testAccount {
-	phone:		"992000000001",
-	balance:	10_000_00,
-	payments:	[]struct {
-		amount		types.Money
-		category	types.PaymentCategory
+
+var defaultTestAccount = testAccount{
+	phone:   "992000000001",
+	balance: 10_000_00,
+	payments: []struct {
+		amount   types.Money
+		category types.PaymentCategory
 	}{
-		{amount:	1_000_00, category: 	"auto"},
+		{amount: 1_000_00, category: "auto"},
 	},
 }
+
 func newTestService() *testService {
 	return &testService{Service: &Service{}}
 }
+
 var s Service
 
 func TestFindAccountByID(t *testing.T) {
@@ -124,7 +128,7 @@ func TestService_Reject_success(t *testing.T) {
 		t.Errorf("Reject(): can't find account by id error = %v", err)
 	}
 	if savedAccount.Balance != defaultTestAccount.balance {
-		t.Errorf("Reject(): balance didn't changed, account = %v", savedAccount )
+		t.Errorf("Reject(): balance didn't changed, account = %v", savedAccount)
 		return
 	}
 }
@@ -168,7 +172,6 @@ func (s *Service) addAccount(data testAccount) (*types.Account, []*types.Payment
 	return account, payments, err
 
 }
-
 
 func TestService_Repeat(t *testing.T) {
 	//создаем Сервис
@@ -270,8 +273,6 @@ func TestService_PayFromFavorite_success(t *testing.T) {
 		return
 	}
 }
-
-
 
 func TestService_PayFromFavorite_fail(t *testing.T) {
 	//создаем Сервис
@@ -389,13 +390,20 @@ func TestService_Import(t *testing.T) {
 	}
 }
 func TestService_SumPaymentsWithProgress(t *testing.T) {
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 20000000; i++ {
 		payment := &types.Payment{
-			ID: uuid.New().String(),
-			Amount: types.Money(1),
+			ID:     uuid.New().String(),
+			Amount: types.Money(103),
 		}
 		s.payments = append(s.payments, payment)
 	}
 
-	s.SumPaymentsWithProgress()
+	progress := s.SumPaymentsWithProgress()
+	var e types.Money
+	var w int
+	for pay := range progress {
+		e = pay.Result
+		w = pay.Part
+	}
+	log.Print(e, w)
 }
