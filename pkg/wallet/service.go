@@ -696,7 +696,7 @@ type Progress struct {
 	Result types.Money
 }
 
-func (s *Service) SumPaymentWithProgress() <-chan Progress {
+func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 	size := 100_000
 
 	amount := make([]types.Money, 0)
@@ -724,6 +724,6 @@ func (s *Service) SumPaymentWithProgress() <-chan Progress {
 		defer close(ch)
 		wg.Wait()
 	}()
-	
+
 	return ch
 }
