@@ -697,7 +697,7 @@ type Progress struct {
 }
 
 func (s *Service) SumPaymentsWithProgress() <-chan Progress {
-	size := 100_000
+	size := 100_00
 
 	amount := make([]types.Money, 0)
 	for _, pay := range s.payments {
@@ -718,12 +718,12 @@ func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 				sum += int(val)
 				
 			}
-			if sum >= 1000520999{
-				ch <- Progress{
-					Part:   len(amount),
-					Result: types.Money(100052100),
-				}
-			}
+			// if sum >= 1000520999{
+			// 	ch <- Progress{
+			// 		Part:   len(amount),
+			// 		Result: types.Money(100052100),
+			// 	}
+			// }
 			ch <- Progress{
 				Part:   len(amount),
 				Result: types.Money(sum),
