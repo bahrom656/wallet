@@ -397,7 +397,7 @@ func TestService_SumPaymentsWithProgress(t *testing.T) {
 		s.payments = append(s.payments, payment)
 	}
 
-	progress := s.SumPaymenstWithProgress()
+	progress := s.SumPaymentsWithProgress()
 
 	for pro := range progress{
 		fmt.Println(pro.Result)
