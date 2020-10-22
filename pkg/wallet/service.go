@@ -724,5 +724,6 @@ func (s *Service) SumPaymentWithProgress() <-chan Progress {
 		defer close(ch)
 		wg.Wait()
 	}()
+	
 	return ch
 }
