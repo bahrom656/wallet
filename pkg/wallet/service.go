@@ -697,14 +697,14 @@ type Progress struct {
 }
 
 func (s *Service) SumPaymentsWithProgress() <-chan Progress {
-	size := 100_00
+	size := 100_000
 
 	amount := make([]types.Money, 0)
 	for _, pay := range s.payments {
 		amount = append(amount, pay.Amount)
 	}
 	wg := sync.WaitGroup{}
-	goroutines := len(amount) / size
+	goroutines := size / (len(amount) + 1)
 	ch := make(chan Progress)
 	if goroutines <= 0 {
 		goroutines = 1
