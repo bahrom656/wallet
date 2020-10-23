@@ -704,7 +704,7 @@ func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 		amount = append(amount, pay.Amount)
 	}
 	wg := sync.WaitGroup{}
-	goroutines := (len(amount) + 1) / size 
+	goroutines := len(amount) / size
 	ch := make(chan Progress)
 	if goroutines <= 0 {
 		goroutines = 1
@@ -718,12 +718,12 @@ func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 				sum += int(val)
 
 			}
-			if sum == 1000521000{
-				ch <- Progress{
-					Part:   len(amount),
-					Result: types.Money(100052100),
-				}
-			}
+			//if sum == 1000521000{
+			//	ch <- Progress{
+			//		Part:   len(amount),
+			//		Result: types.Money(100052100),
+			//	}
+			//}
 			ch <- Progress{
 				Part:   len(amount),
 				Result: types.Money(sum),
