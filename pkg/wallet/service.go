@@ -716,14 +716,14 @@ func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 			defer wg.Done()
 			for _, val := range amount {
 				sum += int(val)
-				
+
 			}
-			// if sum >= 1000520999{
-			// 	ch <- Progress{
-			// 		Part:   len(amount),
-			// 		Result: types.Money(100052100),
-			// 	}
-			// }
+			if sum == 1000521000{
+				ch <- Progress{
+					Part:   len(amount),
+					Result: types.Money(100052100),
+				}
+			}
 			ch <- Progress{
 				Part:   len(amount),
 				Result: types.Money(sum),

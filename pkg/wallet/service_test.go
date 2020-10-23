@@ -397,6 +397,25 @@ func TestService_SumPaymentsWithProgress(t *testing.T) {
 		s.payments = append(s.payments, payment)
 	}
 
-	s.SumPaymentsWithProgress()
-	
+	result := s.SumPaymentsWithProgress()
+	want := Progress{Result: 10300001, Part: 100000}
+
+	for pro := range result {
+		t.Errorf("invalid test: got %v, want %v", pro.Result, want.Result )
+
+	}
 }
+//func Benchmark_SumPaymentsWith(b *testing.B) {
+//	for i := 0; i < 100000; i++ {
+//		payment := &types.Payment{
+//			ID:     uuid.New().String(),
+//			Amount: types.Money(103),
+//		}
+//		s.payments = append(s.payments, payment)
+//	}
+//
+//	for i := 0; i < b.N; i++ {
+//		result := s.SumPaymentsWithProgress()
+//
+//	}
+//}
