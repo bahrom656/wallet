@@ -388,24 +388,24 @@ func TestService_Import(t *testing.T) {
 		t.Error(err)
 	}
 }
-func TestService_SumPaymentsWithProgress(t *testing.T) {
-	for i := 0; i < 10000; i++ {
-		payment := &types.Payment{
-			ID:     uuid.New().String(),
-			Amount: types.Money(103),
-		}
-		s.payments = append(s.payments, payment)
-	}
+// func TestService_SumPaymentsWithProgress(t *testing.T) {
+// 	for i := 0; i < 10000; i++ {
+// 		payment := &types.Payment{
+// 			ID:     uuid.New().String(),
+// 			Amount: types.Money(103),
+// 		}
+// 		s.payments = append(s.payments, payment)
+// 	}
 
-	result := s.SumPaymentsWithProgress()
-	want := Progress{Result: 1030000, Part: 10000}
+// 	result := s.SumPaymentsWithProgress()
+// 	want := Progress{Result: 1030000, Part: 10000}
 
-	for pro := range result {
-		if pro.Result != 1030000 {
-			t.Errorf("invalid test: got %v, want %v", pro.Result, want.Result)
-		}
-	}
-}
+// 	for pro := range result {
+// 		if pro.Result != 1030000 {
+// 			t.Errorf("invalid test: got %v, want %v", pro.Result, want.Result)
+// 		}
+// 	}
+// }
 
 // func Benchmark_SumPaymentsWithProgress(b *testing.B) {
 // 	for i := 0; i < 100000; i++ {
