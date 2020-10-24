@@ -398,26 +398,35 @@ func TestService_SumPaymentsWithProgress(t *testing.T) {
 	}
 
 	result := s.SumPaymentsWithProgress()
-	want := Progress{Result: 1030000, Part: 100000}
+	want := Progress{Result: 1030000, Part: 10000}
 
 	for pro := range result {
-		if pro.Result == 1030000 {
+		if pro.Result != 1030000 {
 			t.Errorf("invalid test: got %v, want %v", pro.Result, want.Result)
 		}
 	}
 }
 
-//func Benchmark_SumPaymentsWith(b *testing.B) {
-//	for i := 0; i < 100000; i++ {
-//		payment := &types.Payment{
-//			ID:     uuid.New().String(),
-//			Amount: types.Money(103),
-//		}
-//		s.payments = append(s.payments, payment)
-//	}
-//
-//	for i := 0; i < b.N; i++ {
-//		result := s.SumPaymentsWithProgress()
-//
-//	}
-//}
+// func Benchmark_SumPaymentsWithProgress(b *testing.B) {
+// 	for i := 0; i < 100000; i++ {
+// 		payment := &types.Payment{
+// 			ID:     uuid.New().String(),
+// 			Amount: types.Money(103),
+// 		}
+// 		s.payments = append(s.payments, payment)
+// 	}
+// 	wants := s.SumPaymentsWithProgress()
+	
+
+// 	b.ResetTimer()
+// 		result := s.SumPaymentsWithProgress()
+// 		b.StopTimer()
+// 		res := <- result
+// 		want := <- wants
+// 		want.Result = 10300000
+// 		want.Part = 100000
+// 			if res.Result != 10300000 && res.Result != 20600000 {
+// 				b.Fatalf("invalid result: got %v, want %v", res, want)
+// 			}
+// 		b.StartTimer()
+// }
